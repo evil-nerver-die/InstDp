@@ -1,9 +1,12 @@
 import cv2
 import instaloader
 import os
+import shutil
+import tkinter as tk
+
 from glob import glob
 from PIL import Image 
-import tkinter as tk
+
 
 window=tk.Tk()
 window.geometry("500x300")
@@ -41,6 +44,9 @@ def imgQuality(img_path, user):
 
 def getProfilePic():
     user=inputUsername()
+    isExist=os.path.exists(f"./{user}")
+    if isExist:
+        shutil.rmtree(f"./{user}")
     getIgProfile(user)
     img_path=getImgPath(user)
     imgQuality(img_path, user)
