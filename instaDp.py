@@ -1,27 +1,33 @@
-import instaloader
 import cv2
-from tkinter import *
-from tkinter import filedialog
+import instaloader
+import os
+from glob import glob
+from PIL import Image 
+import tkinter as tk
 
-def browserFiles():
-    filename = filedialog.askopenfilename(initialdir = "/",
-                                          title = "Select a File",
-                                          filetypes = (("Text files",
-                                                        "*.txt*"),
-                                                       ("all files",
-                                                        "*.*")))
-      
-    # Change label contents
-    label_file_explorer.configure(text="File Opened: "+filename)
+window=tk.Tk()
+window.geometry("500x300")
+window.title(" InstaDP ")
 
-def getIgProfile():
+user_var=tk.StringVar()
+
+def inputUsername():
+    # user = input("Enter username: ")
+    user=user_var.get()
+    print(user)
+    return user
+
+def getIgProfile(user):
     ig = instaloader.Instaloader()
-    # print(cv2.__version__)
-    user = input("Enter username: ")
     ig.download_profile(user,profile_pic_only=True)
     # ig.download_profile(user,download_stories_only=True)    #login required ??
 
-def imgQuality(img_path):
+def getImgPath(user):
+    img_path_list=glob(os.path.join(f"./{user}","*.jpg"))
+    for img_path in img_path_list:
+        return img_path
+
+def imgQuality(img_path, user):
     # img_src = cv2.imread('D:\Mastercode\InstDp\\thieu.99\\2023-06-01_14-30-42_UTC_profile_pic.jpg', cv2.IMREAD_UNCHANGED)
     img_src = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
     scale_percent = 200
@@ -30,35 +36,20 @@ def imgQuality(img_path):
     height = int(img_src.shape[0] * scale_percent / 100)
     dsize = (width, height)
     output = cv2.resize(img_src, dsize, interpolation=cv2.INTER_LINEAR)
-    new_img_name=input()
-    cv2.imwrite(f"D:\Mastercode\InstDp\\thieu.99\\{new_img_name}.jpg",output)
+    # new_img_name=input()
+    cv2.imwrite(f"./{user}\\{user}_profile_pic.jpg",output)
 
-window=Tk()
+def getProfilePic():
+    user=inputUsername()
+    getIgProfile(user)
+    img_path=getImgPath(user)
+    imgQuality(img_path, user)
+    img = Image.open(f"./{user}\\{user}_profile_pic.jpg")
+    img.show()
 
-window.title('INSTDP')
+user_name=tk.Label(window, text="Username").place(x=40,y=60)
+get_img_button=tk.Button(window, text="Get profile pic", command=getProfilePic).place(x=40,y=120)
 
-window.geometry("500x500")
-
-window.config(background = "white")
-
-label_file_explorer = Label(window,
-                            text = "File Explorer using Tkinter",
-                            width = 100, height = 4,
-                            fg = "blue")
-  
-      
-button_explore = Button(window,
-                        text = "Browse Files",
-                        command = browserFiles)
-
-button_exit = Button(window,
-                     text = "Exit",
-                     command = exit)
-
-label_file_explorer.grid(column = 1, row = 1)
-  
-button_explore.grid(column = 1, row = 2)
-  
-button_exit.grid(column = 1,row = 3)
+user_name_input_area=tk.Entry(window, textvariable=user_var, width=35).place(x=120,y=60)
 
 window.mainloop()
